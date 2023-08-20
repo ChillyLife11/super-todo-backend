@@ -2,7 +2,9 @@
 
 namespace App\System;
 
-class Route
+use AllowDynamicProperties;
+
+#[AllowDynamicProperties] class Route
 {
 
     public function __construct(

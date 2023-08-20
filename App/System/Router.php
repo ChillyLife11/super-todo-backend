@@ -7,34 +7,44 @@ class Router
 
     public static function get(Route $route): void
     {
-        self::$routes['GET'][] = $route;
+        $route->requestMethod = 'GET';
+        self::$routes[] = $route;
     }
     public static function post(Route $route): void
     {
-        self::$routes['POST'][] = $route;
+        $route->requestMethod = 'POST';
+        self::$routes[] = $route;
     }
     public static function delete(Route $route): void
     {
-        self::$routes['DELETE'][] = $route;
+        $route->requestMethod = 'DELETE';
+        self::$routes[] = $route;
     }
     public static function patch(Route $route): void
     {
-        self::$routes['PATCH'][] = $route;
+        $route->requestMethod = 'PATCH';
+        self::$routes[] = $route;
     }
     public static function matchRoute(string $url, string $requestMethod)
     {
         $baseRoute = null;
-        foreach (self::$routes[$requestMethod] as $route) {
+        foreach (self::$routes as $route) {
             if (preg_match($route->test, $url, $matches)) {
-                if ($requestMethod !== $route->requestMethod) {
-                    http_response_code(405);
-                    header("Allow: {$route->requestMethod}");
-                    throw new \Exception("Method $requestMethod not allowed by this route");
-                    exit;
+                if (!isset($matches[1])) {
+                    if ($requestMethod !== 'GET' && $requestMethod !== 'POST') {
+                        http_response_code(405);
+                        header("Allow: GET, POST");
+                        throw new \Exception("Method $requestMethod not allowed by this route");
+                    }
+                } else {
+                    if ($requestMethod !== 'GET' && $requestMethod !== 'PATCH' && $requestMethod !== 'DELETE') {
+                        http_response_code(405);
+                        header("Allow: GET, PATCH, DELETE");
+                        throw new \Exception("Method $requestMethod not allowed by this route");
+                    }
                 }
 
                 $baseRoute = $route;
-
                 foreach ($route->params as $k => $v) {
                     if (isset($matches[$k])) {
                         $baseRoute->params[$v] = $matches[$k];
