@@ -5,7 +5,6 @@ use \App\System\Modules;
 use \App\System\Router;
 use \App\Modules\Todo\Module as Todo;
 
-
 try {
     $modules = new Modules();
     $modules->add(new Todo());

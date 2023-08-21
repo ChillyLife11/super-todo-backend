@@ -14,8 +14,9 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: *');
 header('Content-type: application/json; charset=UTF-8');
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+
 require __DIR__ . '/config.php';
 require BASE_DIR . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
