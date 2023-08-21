@@ -37,6 +37,20 @@ class BaseModel
         return $todo;
     }
 
+    public function edit(string $id, array $fields): int
+    {
+        if (!$this->validateFields($fields)) {
+            http_response_code(422);
+            throw new \Exception('Wrong payload passed');
+        }
+
+        $sql = $this->buildUpdateSql($fields);
+
+        $this->query($sql, $fields + ['id' => $id]);
+
+        return 1;
+    }
+
     public function add(array $fields): int
     {
         if (!$this->validateFields($fields)) {
@@ -44,14 +58,9 @@ class BaseModel
             throw new \Exception('Wrong payload passed');
         }
 
-        $this->fieldsToActiveRecord($fields);
+        $sql = $this->buildInsertSql($fields);
 
-        $masksValues = array_map(function($field) {
-            return $field['value'];
-        }, $this->fields);
-        $sql = $this->buildInsertSql();
-
-        $this->query($sql, $masksValues);
+        $this->query($sql, $fields);
         return $this->db->lastInsertId();
     }
 
@@ -87,17 +96,21 @@ class BaseModel
         return true;
     }
 
-    protected function buildInsertSql(): string
+    protected function buildInsertSql(array $fields): string
     {
-        $columns = implode(', ', array_keys($this->fields));
-        $masks = ':' . implode(', :', array_keys($this->fields));
+        $columns = implode(', ', array_keys($fields));
+        $masks = ':' . implode(', :', array_keys($fields));
 
         return  "INSERT INTO {$this->tableName} ($columns) VALUES ($masks)";
     }
-    protected function fieldsToActiveRecord(array $fields): void
+
+    protected function buildUpdateSql(array $fields): string
     {
-        foreach ($fields as $key => $value) {
-            $this->fields[$key]['value'] = $value;
-        }
+        $vals = implode(', ', array_map(function($item) {
+            return $item . ' = :' . $item;
+        }, array_keys($fields)));
+
+
+        return  "UPDATE {$this->tableName} SET $vals WHERE {$this->primaryKey} = :id";
     }
 }
