@@ -4,27 +4,34 @@ namespace App\System;
 class Router
 {
     public static array $routes = [];
+    protected static array $routeNames = [];
 
-    public static function get(Route $route): void
+    public static function add(string $routeName, string $routeController): void
     {
-        $route->requestMethod = 'GET';
-        self::$routes[] = $route;
+        self::$routeNames[] = ['name' => $routeName, 'controller' => $routeController];
     }
-    public static function post(Route $route): void
+
+    public static function buildRoutes(): void
     {
-        $route->requestMethod = 'POST';
-        self::$routes[] = $route;
+        foreach (self::$routeNames as $route) {
+            self::get(new Route("/^{$route['name']}\/?$/", $route['controller']));
+
+            self::get(new Route("/^{$route['name']}\/([0-9]+)\/?$/", $route['controller'], 'one', [
+                1 => 'id',
+            ]));
+
+            self::post(new Route("/^{$route['name']}\/?$/", $route['controller'], 'add'));
+
+            self::delete(new Route("/^{$route['name']}\/([0-9]+)\/?$/", $route['controller'], 'delete', [
+                1 => 'id',
+            ]));
+
+            self::patch(new Route("/^{$route['name']}\/([0-9]+)\/?$/", $route['controller'], 'edit', [
+                1 => 'id',
+            ]));
+        }
     }
-    public static function delete(Route $route): void
-    {
-        $route->requestMethod = 'DELETE';
-        self::$routes[] = $route;
-    }
-    public static function patch(Route $route): void
-    {
-        $route->requestMethod = 'PATCH';
-        self::$routes[] = $route;
-    }
+
     public static function matchRoute(string $url, string $requestMethod)
     {
         $baseRoute = null;
@@ -60,8 +67,31 @@ class Router
             throw new \Exception('Resouce not found');
         }
 
-
         return $baseRoute;
+    }
+
+    protected static function get(Route $route): void
+    {
+        $route->requestMethod = 'GET';
+        self::$routes[] = $route;
+    }
+
+    protected static function post(Route $route): void
+    {
+        $route->requestMethod = 'POST';
+        self::$routes[] = $route;
+    }
+
+    protected static function delete(Route $route): void
+    {
+        $route->requestMethod = 'DELETE';
+        self::$routes[] = $route;
+    }
+
+    protected static function patch(Route $route): void
+    {
+        $route->requestMethod = 'PATCH';
+        self::$routes[] = $route;
     }
 
 }

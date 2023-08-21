@@ -11,10 +11,11 @@ try {
 
     $modules->modulesInit();
 
+
     $url = $_GET['systemqueryurl'] ?? '';
     $activeRoute = Router::matchRoute($url, $_SERVER['REQUEST_METHOD']);
 
-    $className = $activeRoute->class;
+    $className = $activeRoute->controller;
     $class = new $className();
     $class->params = $activeRoute->params;
     $method = $activeRoute->method;

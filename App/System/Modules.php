@@ -12,10 +12,12 @@ class Modules
         $this->modules[] = $module;
     }
 
-    public function modulesInit()
+    public function modulesInit(): void
     {
         foreach ($this->modules as $module) {
-            $module->registerRoutes();
+            Router::add($module->name, $module->class);
         }
+
+        Router::buildRoutes();
     }
 }

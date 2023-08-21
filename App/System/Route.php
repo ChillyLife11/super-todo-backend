@@ -9,7 +9,7 @@ use AllowDynamicProperties;
 
     public function __construct(
         public string $test,
-        public string $class,
+        public string $controller,
         public string $method = 'index',
         public array $params = []
     )

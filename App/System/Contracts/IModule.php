@@ -6,5 +6,5 @@ use App\System\Router;
 
 interface IModule
 {
-    public function registerRoutes(): void;
+//    const string $name;
 }
