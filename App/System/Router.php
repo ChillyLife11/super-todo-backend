@@ -28,35 +28,38 @@ class Router
     public static function matchRoute(string $url, string $requestMethod)
     {
         $baseRoute = null;
+        $hasMatch = false;
+        $matches = [];
+
         foreach (self::$routes as $route) {
             if (preg_match($route->test, $url, $matches)) {
-                if (!isset($matches[1])) {
-                    if ($requestMethod !== 'GET' && $requestMethod !== 'POST') {
-                        http_response_code(405);
-                        header("Allow: GET, POST");
-                        throw new \Exception("Method $requestMethod not allowed by this route");
-                    }
-                } else {
-                    if ($requestMethod !== 'GET' && $requestMethod !== 'PATCH' && $requestMethod !== 'DELETE') {
-                        http_response_code(405);
-                        header("Allow: GET, PATCH, DELETE");
-                        throw new \Exception("Method $requestMethod not allowed by this route");
-                    }
-                }
-
-                $baseRoute = $route;
-                foreach ($route->params as $k => $v) {
-                    if (isset($matches[$k])) {
-                        $baseRoute->params[$v] = $matches[$k];
+                $hasMatch = true;
+                if ($requestMethod === $route->requestMethod) {
+                    $baseRoute = $route;
+                    foreach ($route->params as $k => $v) {
+                        if (isset($matches[$k])) {
+                            $baseRoute->params[$v] = $matches[$k];
+                        }
                     }
                 }
             }
+        }
+
+        if ($hasMatch && $baseRoute === null) {
+            http_response_code(405);
+            if (isset($matches[1])) {
+                header('Allow: GET, PATCH, DELETE');
+            } else {
+                header('Allow: GET, POST');
+            }
+            throw new \Exception('Wrong method used');
         }
 
         if ($baseRoute === null) {
             http_response_code(404);
             throw new \Exception('Resouce not found');
         }
+
 
         return $baseRoute;
     }

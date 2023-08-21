@@ -19,7 +19,7 @@ try {
     $class = new $className();
     $class->params = $activeRoute->params;
     $method = $activeRoute->method;
-    echo json_encode($class->$method());
+    echo $class->$method();
 } catch (Exception $e) {
     echo json_encode([
         'message' => $e->getMessage()

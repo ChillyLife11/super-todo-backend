@@ -14,7 +14,10 @@ class Module implements IModule
         Router::get(new Route('/^todos\/([0-9]+)\/?$/', Controller::class, 'one', [
             1 => 'id',
         ]));
-        Router::delete(new Route('/^todos\/([0-9]+)\/?$/', Controller::class, 'one', [
+
+        Router::post(new Route('/^todos\/?$/', Controller::class, 'add'));
+
+        Router::delete(new Route('/^todos\/([0-9]+)\/?$/', Controller::class, 'delete', [
             1 => 'id',
         ]));
     }
