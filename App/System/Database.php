@@ -5,23 +5,32 @@ namespace App\System;
 class Database
 {
     protected ?\PDO $conn = null;
-    public function __construct(
-        protected string $host,
-        protected string $user,
-        protected string $password,
-        protected string $name,
-    )
-    {}
-
-    public function getConnection(): \PDO
+    public static ?self $instance = null;
+    protected function __construct()
     {
-        if ($this->conn === null) {
-            $this->conn = new \PDO("mysql:host={$this->host};dbname={$this->name}", $this->user, $this->password, [
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
-            ]);
+        $this->conn = new \PDO("mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}", $_ENV['DB_USER'], $_ENV['DB_PASSWORD'], [
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+        ]);
+    }
+
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
         }
 
-        return $this->conn;
+        return self::$instance;
+    }
+
+    public function query(string $sql, array $params = []): \PDOStatement
+    {
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
+    public function lastInsertId(): int
+    {
+        return $this->conn->lastInsertId();
     }
 }

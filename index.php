@@ -22,6 +22,7 @@ try {
     echo $class->$method();
 } catch (Exception $e) {
     echo json_encode([
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'file'    => $e->getFile()
     ]);
 }

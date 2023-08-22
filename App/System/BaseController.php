@@ -18,7 +18,7 @@ class BaseController
         try {
             return json_encode($this->model->one($this->params['id']));
         } catch (\Exception $e) {
-            return json_encode(['message' => $e->getMessage()]);
+            return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
     }
 
@@ -28,7 +28,7 @@ class BaseController
             $fields = json_decode(file_get_contents('php://input'), true);
             return json_encode(['id' => $this->model->add($fields)]);
         } catch (\Exception $e) {
-            return json_encode(['message' => $e->getMessage()]);
+            return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
     }
 
@@ -37,7 +37,7 @@ class BaseController
         try {
             return json_encode($this->model->delete($this->params['id']));
         } catch (\Exception $e) {
-            return json_encode(['message' => $e->getMessage()]);
+            return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
     }
 
@@ -47,7 +47,7 @@ class BaseController
             $fields = json_decode(file_get_contents('php://input'), true);
             return json_encode($this->model->edit($this->params['id'], $fields));
         } catch (\Exception $e) {
-            return json_encode(['message' => $e->getMessage()]);
+            return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
     }
 }
