@@ -84,6 +84,14 @@ class BaseModel
 
     protected function validateFields(array $fields): bool
     {
+        foreach ($this->fields as $key => $value) {
+            if ($this->fields[$key]['required'] === true) {
+                if (!isset($fields[$key])) {
+                    return false;
+                }
+            }
+        }
+
         foreach ($fields as $key => $value) {
             if (!isset($this->fields[$key])) {
                 return false;
