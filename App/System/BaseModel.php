@@ -15,11 +15,29 @@ class BaseModel
         $this->db = Database::getInstance();
     }
 
-    public function all(): ?array
+    public function all(array $params): ?array
     {
-        $sql = "SELECT * FROM {$this->tableName} ORDER BY dt_add DESC";
-        $stmt = $this->db->query($sql);
-        return $stmt->fetchAll();
+        if ($this->validateFields($params)) {
+            $params = $this->toBool($params);
+
+            $condPairs = [];
+            foreach ($params as $k => $v) {
+                $condPairs[] .= $k . ' = :' . $k;
+            }
+            $condStr = implode(' AND ', $condPairs);
+
+            $sql = "SELECT * FROM {$this->tableName} WHERE {$condStr} ORDER BY dt_add DESC";
+            $stmt = $this->db->query($sql, $params);
+            $data = $stmt->fetchAll();
+            foreach ($data as &$item) {
+                $item = $this->toBool($item);
+            }
+            var_dump($data);
+            die;
+        } else {
+            http_response_code(422);
+            throw new \Exception("Unprocessable Entity");
+        }
     }
 
     public function one(string $id): array
@@ -74,9 +92,19 @@ class BaseModel
         }
     }
 
+    protected function toBool(array $fields): array
+    {
+        foreach ($fields as $k => &$v) {
+            if ($v === 'true' || $v === '1' || $v === 1) $v = true;
+            if ($v === 'false' || $v === '0' || $v === 0) $v = false;
+        }
+
+        return $fields;
+    }
+
     protected function validateFields(array $fields): bool
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($this->fields as $key => $value) {
                 if ($this->fields[$key]['required'] === true && !isset($fields[$key])) {
                     return false;

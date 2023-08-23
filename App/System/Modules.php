@@ -16,6 +16,7 @@ class Modules
     {
         foreach ($this->modules as $module) {
             Router::add($module->name, $module->class);
+            $module->registerMoreRoutes();
         }
 
         Router::buildRoutes();

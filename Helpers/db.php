@@ -49,6 +49,8 @@ class Todo {
         return 'Table successfully filled';
     }
 }
+
+
 if (!isset($argv[1])) {
     echo 'Please pass the class name';
     exit;

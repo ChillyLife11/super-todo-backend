@@ -13,9 +13,9 @@ class Model extends BaseModel
             'value' => '',
         ],
         'done' => [
-            'pattern' => '/^[01]$/',
+            'pattern' => '/^(0|1|true|false)$/',
             'required' => false,
-            'default' => 0,
+            'default' => false,
             'value' => '',
         ],
     ];

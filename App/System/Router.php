@@ -70,25 +70,25 @@ class Router
         return $baseRoute;
     }
 
-    protected static function get(Route $route): void
+    public static function get(Route $route): void
     {
         $route->requestMethod = 'GET';
         self::$routes[] = $route;
     }
 
-    protected static function post(Route $route): void
+    public static function post(Route $route): void
     {
         $route->requestMethod = 'POST';
         self::$routes[] = $route;
     }
 
-    protected static function delete(Route $route): void
+    public static function delete(Route $route): void
     {
         $route->requestMethod = 'DELETE';
         self::$routes[] = $route;
     }
 
-    protected static function patch(Route $route): void
+    public static function patch(Route $route): void
     {
         $route->requestMethod = 'PATCH';
         self::$routes[] = $route;

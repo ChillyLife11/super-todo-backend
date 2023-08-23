@@ -11,8 +11,8 @@ try {
 
     $modules->modulesInit();
 
-
     $url = $_GET['systemqueryurl'] ?? '';
+    unset($_GET['systemqueryurl']);
     $activeRoute = Router::matchRoute($url, $_SERVER['REQUEST_METHOD']);
 
     $className = $activeRoute->controller;

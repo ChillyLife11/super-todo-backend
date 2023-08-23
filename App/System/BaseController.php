@@ -8,7 +8,8 @@ class BaseController
 
     public function index(): string|false
     {
-        $data = $this->model->all();
+        $getParams = $_GET;
+        $data = $this->model->all($getParams);
 
         return json_encode($data);
     }
