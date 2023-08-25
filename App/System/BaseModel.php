@@ -32,8 +32,8 @@ class BaseModel
             foreach ($data as &$item) {
                 $item = $this->toBool($item);
             }
-            var_dump($data);
-            die;
+
+            return $data;
         } else {
             http_response_code(422);
             throw new \Exception("Unprocessable Entity");
@@ -67,7 +67,7 @@ class BaseModel
         return true;
     }
 
-    public function add(array $fields): int
+    public function add(array $fields): array
     {
         if (!$this->validateFields($fields)) {
             http_response_code(422);
@@ -77,7 +77,8 @@ class BaseModel
         $sql = $this->buildInsertSql($fields);
 
         $this->db->query($sql, $fields);
-        return $this->db->lastInsertId();
+
+        return $this->toBool($this->one((string)$this->db->lastInsertId()));
     }
 
     public function delete(string $id): bool

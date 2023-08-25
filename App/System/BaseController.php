@@ -27,7 +27,7 @@ class BaseController
     {
         try {
             $fields = json_decode(file_get_contents('php://input'), true);
-            return json_encode(['id' => $this->model->add($fields)]);
+            return json_encode($this->model->add($fields));
         } catch (\Exception $e) {
             return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
