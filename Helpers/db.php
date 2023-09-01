@@ -8,47 +8,9 @@ $dotenv->load();
 $db = \App\System\Database::getInstance();
 $faker = \Faker\Factory::create();
 
-class Todo {
-    public \App\System\Database $db;
-    public \Faker\Generator $faker;
-
-    public function __construct(\App\System\Database $db, \Faker\Generator $faker)
-    {
-        $this->db = $db;
-        $this->faker = $faker;
-    }
-
-    public function clear(): string
-    {
-        $sql = "DELETE FROM todos";
-        $this->db->query($sql);
-        return 'Table successfully cleared';
-    }
-
-    public function fill(): string
-    {
-        $arr = [];
-
-        for ($a = 0; $a < 20; $a++) {
-            $arr[] = [
-                'name' => $this->faker->words(mt_rand(1, 6), true),
-                'done' => mt_rand(0, 1) ? 0 : 1
-            ];
-        }
-
-        $vals = '';
-
-        foreach ($arr as $item) {
-            $vals .= ", ('" . implode("', '", array_values($item)) . "')";
-        }
-
-        $vals = mb_substr($vals, 1, mb_strlen($vals));
-
-        $sql = "INSERT INTO todos (name, done) VALUES " . $vals;
-        $this->db->query($sql);
-        return 'Table successfully filled';
-    }
-}
+require './Base.php';
+require './Todo.php';
+require './User.php';
 
 
 if (!isset($argv[1])) {

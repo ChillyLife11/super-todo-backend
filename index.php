@@ -1,13 +1,15 @@
 <?php
 require __DIR__ . '/init.php';
 
-use \App\System\Modules;
-use \App\System\Router;
-use \App\Modules\Todo\Module as Todo;
+use App\System\Modules;
+use App\System\Router;
+use App\Modules\Todo\Module as Todo;
+use App\Modules\User\Module as User;
 
 try {
     $modules = new Modules();
     $modules->add(new Todo());
+    $modules->add(new User());
 
     $modules->modulesInit();
 

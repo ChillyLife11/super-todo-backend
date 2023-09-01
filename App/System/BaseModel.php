@@ -17,9 +17,16 @@ class BaseModel
 
     public function all(array $params): ?array
     {
-        if ($this->validateFields($params)) {
-            $params = $this->toBool($params);
+        $sql = '';
+        
+        if (!empty($params)) {
+            if (!$this->validateFields($params)) {
+                http_response_code(422);
+                throw new \Exception("Unprocessable Entity");
+            }
 
+            $params = $this->toBool($params);
+    
             $condPairs = [];
             foreach ($params as $k => $v) {
                 $condPairs[] .= $k . ' = :' . $k;
@@ -27,17 +34,17 @@ class BaseModel
             $condStr = implode(' AND ', $condPairs);
 
             $sql = "SELECT * FROM {$this->tableName} WHERE {$condStr} ORDER BY dt_add DESC";
-            $stmt = $this->db->query($sql, $params);
-            $data = $stmt->fetchAll();
-            foreach ($data as &$item) {
-                $item = $this->toBool($item);
-            }
-
-            return $data;
-        } else {
-            http_response_code(422);
-            throw new \Exception("Unprocessable Entity");
+        } else  {
+            $sql = "SELECT * FROM {$this->tableName} ORDER BY dt_add DESC";
         }
+
+        $stmt = $this->db->query($sql, $params);
+        $data = $stmt->fetchAll();
+        foreach ($data as &$item) {
+            $item = $this->toBool($item);
+        }
+
+        return $data;
     }
 
     public function one(string $id): array
@@ -96,8 +103,10 @@ class BaseModel
     protected function toBool(array $fields): array
     {
         foreach ($fields as $k => &$v) {
-            if ($v === 'true' || $v === '1' || $v === 1) $v = true;
-            if ($v === 'false' || $v === '0' || $v === 0) $v = false;
+            if ($k !== $this->primaryKey) {
+                if ($v === 'true' || $v === '1' || $v === 1) $v = true;
+                if ($v === 'false' || $v === '0' || $v === 0) $v = false;
+            }
         }
 
         return $fields;
@@ -117,6 +126,7 @@ class BaseModel
             if (!isset($this->fields[$key])) {
                 return false;
             }
+            var_dump($this->fields[$key]);
             if (!preg_match($this->fields[$key]['pattern'], $value)) {
                 return false;
             }

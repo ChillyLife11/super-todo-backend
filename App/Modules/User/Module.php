@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Todo;
+namespace App\Modules\User;
 
-use \App\System\Contracts\IModule;
+use App\System\Contracts\IModule;
 
 class Module implements IModule
 {
-    public string $name = 'todos';
+    public string $name = 'users';
     public string $class = Controller::class;
 
     public function registerMoreRoutes(): void

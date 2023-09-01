@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Modules\Todo;
+
 use App\System\BaseModel;
 
 class Model extends BaseModel

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Todo;
+namespace App\Modules\User;
 
 use App\System\BaseController;
 use App\System\BaseModel;
