@@ -11,6 +11,6 @@ class Module implements IModule
 
     public function registerMoreRoutes(): void
     {
-//        Router::get(new Route("/^{$this->name}\/$/"));
+
     }
 }

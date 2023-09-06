@@ -7,7 +7,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-l
 
-RewriteRule ^(.+)$ /backend/index.php?systemqueryurl=$1 [QSA]
+RewriteRule ^(.+)$ /backend/api/index.php?systemqueryurl=$1 [QSA]
 
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 

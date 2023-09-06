@@ -6,6 +6,15 @@ class BaseController
 {
     public array $params;
 
+    public function __construct()
+    {
+        try {
+            Auth::authAccessToken();
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
     public function index(): string|false
     {
         $getParams = $_GET;

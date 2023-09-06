@@ -55,7 +55,7 @@ class BaseModel
 
         if (!$todo) {
             http_response_code(404);
-            throw new \Exception("Todo with id=$id not found");
+            throw new \Exception("With id=$id not found");
         }
 
         return $todo;
@@ -100,19 +100,7 @@ class BaseModel
         }
     }
 
-    protected function toBool(array $fields): array
-    {
-        foreach ($fields as $k => &$v) {
-            if ($k !== $this->primaryKey) {
-                if ($v === 'true' || $v === '1' || $v === 1) $v = true;
-                if ($v === 'false' || $v === '0' || $v === 0) $v = false;
-            }
-        }
-
-        return $fields;
-    }
-
-    protected function validateFields(array $fields): bool
+    public function validateFields(array $fields): bool
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($this->fields as $key => $value) {
@@ -126,7 +114,7 @@ class BaseModel
             if (!isset($this->fields[$key])) {
                 return false;
             }
-            var_dump($this->fields[$key]);
+
             if (!preg_match($this->fields[$key]['pattern'], $value)) {
                 return false;
             }
@@ -134,6 +122,19 @@ class BaseModel
 
         return true;
     }
+
+    protected function toBool(array $fields): array
+    {
+        foreach ($fields as $k => &$v) {
+            if ($k !== $this->primaryKey) {
+                if ($v === 'true' || $v === '1' || $v === 1) $v = true;
+                if ($v === 'false' || $v === '0' || $v === 0) $v = false;
+            }
+        }
+
+        return $fields;
+    }
+
 
     protected function buildInsertSql(array $fields): string
     {

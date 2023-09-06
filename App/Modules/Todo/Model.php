@@ -10,14 +10,10 @@ class Model extends BaseModel
         'name' => [
             'pattern' => '/^.{3,256}$/',
             'required' => true,
-            'default' => '',
-            'value' => '',
         ],
         'done' => [
             'pattern' => '/^(0|1|true|false)$/',
             'required' => false,
-            'default' => false,
-            'value' => '',
         ],
     ];
     protected string $tableName = 'todos';
