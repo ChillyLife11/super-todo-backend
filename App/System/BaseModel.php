@@ -49,16 +49,18 @@ class BaseModel
 
     public function one(string $id): array
     {
+
         $sql = "SELECT * FROM {$this->tableName} WHERE {$this->primaryKey} = :id ORDER BY dt_add DESC";
         $stmt = $this->db->query($sql, ['id' => $id]);
-        $todo = $stmt->fetch();
 
-        if (!$todo) {
+        $one = $stmt->fetch();
+
+        if (!$one) {
             http_response_code(404);
             throw new \Exception("With id=$id not found");
         }
 
-        return $todo;
+        return $one;
     }
 
     public function edit(string $id, array $fields): bool

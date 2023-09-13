@@ -14,5 +14,6 @@ class Module implements IModule
     public function registerMoreRoutes(): void
     {
         Router::post(new Route('/^users\/login$/', Controller::class, 'login'));
+        Router::post(new Route('/^users\/refresh$/', Controller::class, 'refresh'));
     }
 }
