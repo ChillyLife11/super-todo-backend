@@ -7,7 +7,7 @@ use App\System\BaseModel;
 
 class Controller extends BaseController
 {
-    protected BaseModel $model;
+    public BaseModel $model;
     public function __construct()
     {
         parent::__construct();

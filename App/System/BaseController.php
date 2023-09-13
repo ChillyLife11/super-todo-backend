@@ -4,6 +4,7 @@ namespace App\System;
 
 class BaseController
 {
+    public BaseModel $model;
     public array $params;
 
     public function __construct()

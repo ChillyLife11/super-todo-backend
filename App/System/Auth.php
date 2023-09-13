@@ -21,6 +21,13 @@ class Auth
             throw new \Exception('Invalid json');
             return false;
         }
+
+        if (time() > $data['exp']) {
+            http_response_code(401);
+            throw new \Exception('Expired access token');
+            return false;
+        }
+
         return true;
     }
 }

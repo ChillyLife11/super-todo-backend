@@ -8,7 +8,7 @@ use Firebase\JWT\JWT;
 
 class Controller extends BaseController
 {
-    protected BaseModel $model;
+    public BaseModel $model;
     public function __construct()
     {
         $this->model = new Model();
@@ -21,9 +21,11 @@ class Controller extends BaseController
             $user = $this->model->getByUsername($fields);
 
             $accessToken = JWT::encode([
+                'sub'      => $user['id_user'],
                 'name'     => $user['name'],
                 'username' => $user['username'],
-                'dt_add'   => $user['dt_add']
+                'dt_add'   => $user['dt_add'],
+                'exp'      => time() + 20
             ], $_ENV['JWT_SECRET_KEY'], 'HS256');
 
             return json_encode(['access_token' => $accessToken]);
