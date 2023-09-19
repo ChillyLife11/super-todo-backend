@@ -30,7 +30,7 @@ class ModelRefreshToken extends BaseModel
         return hash_hmac('sha256', $refreshToken, $_ENV['JWT_SECRET_KEY']);
     }
 
-    public function deleteRefreshToken(string $token)
+    public function deleteRefreshToken(string $token): bool
     {
         $sql = "DELETE FROM {$this->tableName} WHERE token_hash = :token_hash";
         $stmt = $this->db->query($sql, ['token_hash' => $token]);
@@ -40,5 +40,11 @@ class ModelRefreshToken extends BaseModel
         } else  {
             throw new \Exception("Data with token=$token not found to delete");
         }
+    }
+
+    public function getByToken(string $token): array | false
+    {
+        $sql = "SELECT * FROM {$this->tableName} WHERE token_hash = :token";
+        return $this->db->query($sql, ['token' => $token])->fetch();
     }
 }

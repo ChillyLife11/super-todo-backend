@@ -15,5 +15,6 @@ class Module implements IModule
     {
         Router::post(new Route('/^users\/login$/', Controller::class, 'login'));
         Router::post(new Route('/^users\/refresh$/', Controller::class, 'refresh'));
+        Router::post(new Route('/^users\/logout/', Controller::class, 'logout'));
     }
 }

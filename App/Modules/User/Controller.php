@@ -19,8 +19,8 @@ class Controller extends BaseController
 
     public function login(): string
     {
+        $fields = (array) json_decode(file_get_contents('php://input'), true);
         try {
-            $fields = (array) json_decode(file_get_contents('php://input'), true);
             $user = $this->model->getByUsername($fields);
 
             $refreshExp = time() + 43200;
@@ -46,6 +46,12 @@ class Controller extends BaseController
             exit;
         }
 
+        if (!$this->modelRefreshToken->getByToken($this->modelRefreshToken->getHash($fields['token']))) {
+            http_response_code(400);
+            echo json_encode(['message' => 'invalid token (not found)']);
+            exit;
+        }
+
         try {
             $payload = (array) JWT::decode($fields['token'], new Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
             $userId = $payload['sub'];
@@ -61,6 +67,19 @@ class Controller extends BaseController
             $this->modelRefreshToken->add(['token_hash' => $refreshTokenHash, 'expiry' => $refreshExp]);
 
             return json_encode($tokens);
+        } catch (\Exception $e) {
+            return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
+        }
+    }
+
+    public function logout()
+    {
+        $fields = (array) json_decode(file_get_contents('php://input'), true);
+
+        try {
+            $this->modelRefreshToken->deleteRefreshToken($this->modelRefreshToken->getHash($fields['token']));
+
+            return json_encode(['message' => 'Successfully logged out']);
         } catch (\Exception $e) {
             return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
         }
