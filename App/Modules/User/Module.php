@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Users;
+namespace App\Modules\User;
 
 use \App\System\Contracts\IModule;
 use App\System\Route;

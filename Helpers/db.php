@@ -11,6 +11,7 @@ $faker = \Faker\Factory::create();
 require './Base.php';
 require './Todo.php';
 require './User.php';
+require './RefreshTokens.php';
 
 
 if (!isset($argv[1])) {

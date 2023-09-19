@@ -98,7 +98,7 @@ class BaseModel
         if ($stmt->rowCount() > 0) {
             return true;
         } else  {
-            throw new \Exception("Todo with id=$id not found to delete");
+            throw new \Exception("Data with id=$id not found to delete");
         }
     }
 
