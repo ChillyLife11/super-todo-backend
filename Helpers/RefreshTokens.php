@@ -10,4 +10,11 @@ class RefreshTokens extends Base
     {
         parent::__construct($db, $faker);
     }
+
+    public function clearExpired(): string
+    {
+        $sql = "DELETE FROM {$this->tableName} WHERE expiry < UNIX_TIMESTAMP()";
+        $this->db->query($sql);
+        return 'Refresh tokens table successfully cleared of expired tokens';
+    }
 }
