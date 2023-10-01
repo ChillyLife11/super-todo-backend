@@ -1,6 +1,7 @@
 <?php
 
 namespace App\System;
+
 class Router
 {
     public static array $routes = [];
@@ -32,7 +33,7 @@ class Router
         }
     }
 
-    public static function matchRoute(string $url, string $requestMethod)
+    public static function matchRoute(string $url, string $requestMethod): ?Route
     {
         $baseRoute = null;
         $hasMatch = false;

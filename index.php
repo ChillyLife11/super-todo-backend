@@ -24,7 +24,7 @@ try {
     $class->params = $activeRoute->params;
     $method = $activeRoute->method;
     echo $class->$method();
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     echo json_encode([
         'message' => $e->getMessage(),
         'file'    => $e->getFile()

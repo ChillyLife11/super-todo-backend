@@ -4,7 +4,8 @@ namespace App\System;
 
 class BaseModel
 {
-    public Database $db;
+    protected Database $db;
+    protected Auth $auth;
     protected string $tableName = '';
     protected string $primaryKey = '';
 
@@ -13,35 +14,50 @@ class BaseModel
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->auth = Auth::getInstance();
     }
 
     public function all(array $params): ?array
     {
-        $sql = '';
+        $sql = "SELECT * FROM {$this->tableName}";
         
+        $condPairs = [];
+        $condStr = '';
         if (!empty($params)) {
             if (!$this->validateFields($params)) {
                 http_response_code(422);
                 throw new \Exception("Unprocessable Entity");
             }
-
-            $params = $this->toBool($params);
     
-            $condPairs = [];
             foreach ($params as $k => $v) {
                 $condPairs[] .= $k . ' = :' . $k;
             }
             $condStr = implode(' AND ', $condPairs);
 
-            $sql = "SELECT * FROM {$this->tableName} WHERE {$condStr} ORDER BY dt_add DESC";
-        } else  {
-            $sql = "SELECT * FROM {$this->tableName} ORDER BY dt_add DESC";
         }
+
+        if ($this->auth::$userId !== null) {
+            $condStr .= ($condStr === '' ? '' : ' AND ') . 'id_user=:id_user';
+            $params = $params + ['id_user' => $this->auth::$userId];
+        }
+
+        if ($condStr !== '') {
+            $sql .= " WHERE {$condStr}";
+        }
+
+        $sql .= " ORDER BY dt_add DESC";
 
         $stmt = $this->db->query($sql, $params);
         $data = $stmt->fetchAll();
+
         foreach ($data as &$item) {
-            $item = $this->toBool($item);
+            foreach ($this->fields as $k => $v) {
+                if (array_key_exists($k, $item)) {
+                    if (array_key_exists('is_bool', $v)) {
+                        $item[$k] = (bool) $item[$k];
+                    }
+                }
+            }
         }
 
         return $data;
@@ -70,7 +86,12 @@ class BaseModel
             throw new \Exception('Incorrect payload');
         }
 
-        $sql = $this->buildUpdateSql($fields);
+        $vals = implode(', ', array_map(function($item) {
+            return $item . ' = :' . $item;
+        }, array_keys($fields)));
+
+
+        $sql = "UPDATE {$this->tableName} SET $vals WHERE {$this->primaryKey} = :id";
 
         $this->db->query($sql, $fields + ['id' => $id]);
         return true;
@@ -82,12 +103,14 @@ class BaseModel
             http_response_code(422);
             throw new \Exception('Incorrect payload');
         }
+        $columns = implode(', ', array_keys($fields));
+        $masks = ':' . implode(', :', array_keys($fields));
 
-        $sql = $this->buildInsertSql($fields);
+        $sql = "INSERT INTO {$this->tableName} ($columns) VALUES ($masks)";
 
         $this->db->query($sql, $fields);
 
-        return $this->toBool($this->one((string)$this->db->lastInsertId()));
+        return $this->one((string)$this->db->lastInsertId());
     }
 
     public function delete(string $id): bool
@@ -123,36 +146,5 @@ class BaseModel
         }
 
         return true;
-    }
-
-    protected function toBool(array $fields): array
-    {
-        foreach ($fields as $k => &$v) {
-            if ($k !== $this->primaryKey) {
-                if ($v === 'true' || $v === '1' || $v === 1) $v = true;
-                if ($v === 'false' || $v === '0' || $v === 0) $v = false;
-            }
-        }
-
-        return $fields;
-    }
-
-
-    protected function buildInsertSql(array $fields): string
-    {
-        $columns = implode(', ', array_keys($fields));
-        $masks = ':' . implode(', :', array_keys($fields));
-
-        return  "INSERT INTO {$this->tableName} ($columns) VALUES ($masks)";
-    }
-
-    protected function buildUpdateSql(array $fields): string
-    {
-        $vals = implode(', ', array_map(function($item) {
-            return $item . ' = :' . $item;
-        }, array_keys($fields)));
-
-
-        return  "UPDATE {$this->tableName} SET $vals WHERE {$this->primaryKey} = :id";
     }
 }

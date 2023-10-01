@@ -14,6 +14,11 @@ class Model extends BaseModel
         'done' => [
             'pattern' => '/^(0|1|true|false)$/',
             'required' => false,
+            'is_bool' => true
+        ],
+        'id_user' => [
+            'pattern' => '/^\\d+$/',
+            'required' => false,
         ],
     ];
     protected string $tableName = 'todos';

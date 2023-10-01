@@ -20,21 +20,18 @@ class Controller extends BaseController
     public function login(): string
     {
         $fields = (array) json_decode(file_get_contents('php://input'), true);
-        try {
-            $user = $this->model->getByUsername($fields);
 
-            $refreshExp = time() + 43200;
+        $user = $this->model->getByUsername($fields);
 
-            $tokens = $this->getTokens($user, $refreshExp);
+        $refreshExp = time() + 432000;
 
-            $refreshTokenHash = $this->modelRefreshToken->getHash($tokens['refresh_token']);
+        $tokens = $this->getTokens($user, $refreshExp);
 
-            $this->modelRefreshToken->add(['token_hash' => $refreshTokenHash, 'expiry' => $refreshExp]);
+        $refreshTokenHash = $this->modelRefreshToken->getHash($tokens['refresh_token']);
 
-            return json_encode($tokens);
-        } catch (\Exception $e) {
-            return json_encode(['message' => $e->getMessage()]);
-        }
+        $this->modelRefreshToken->add(['token_hash' => $refreshTokenHash, 'expiry' => $refreshExp]);
+
+        return json_encode($tokens);
     }
 
     public function refresh(): string
@@ -54,35 +51,40 @@ class Controller extends BaseController
 
         try {
             $payload = (array) JWT::decode($fields['token'], new Key($_ENV['JWT_SECRET_KEY'], 'HS256'));
-            $userId = $payload['sub'];
-
-            $user = $this->model->one((string) $userId);
-
-            $refreshExp = time() + 43200;
-            $tokens = $this->getTokens($user, $refreshExp);
-            $refreshTokenHash = $this->modelRefreshToken->getHash($tokens['refresh_token']);
-
-            $this->modelRefreshToken->deleteRefreshToken($this->modelRefreshToken->getHash($fields['token']));
-
-            $this->modelRefreshToken->add(['token_hash' => $refreshTokenHash, 'expiry' => $refreshExp]);
-
-            return json_encode($tokens);
         } catch (\Exception $e) {
-            return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
+            http_response_code(400);
+            echo json_encode(['message' => $e->getMessage()]);
+            exit;
         }
+
+        if (time() > $payload['exp']) {
+            http_response_code(401);
+            echo json_encode(['message' => 'Refresh token expired']);
+            exit;
+        }
+
+        $userId = $payload['sub'];
+
+        $user = $this->model->one((string) $userId);
+
+        $refreshExp = (int) $payload['exp'];
+        $tokens = $this->getTokens($user, $refreshExp);
+        $refreshTokenHash = $this->modelRefreshToken->getHash($tokens['refresh_token']);
+
+        $this->modelRefreshToken->deleteRefreshToken($this->modelRefreshToken->getHash($fields['token']));
+
+        $this->modelRefreshToken->add(['token_hash' => $refreshTokenHash, 'expiry' => $refreshExp]);
+
+        return json_encode($tokens);
     }
 
     public function logout()
     {
         $fields = (array) json_decode(file_get_contents('php://input'), true);
 
-        try {
-            $this->modelRefreshToken->deleteRefreshToken($this->modelRefreshToken->getHash($fields['token']));
+        $this->modelRefreshToken->deleteRefreshToken($this->modelRefreshToken->getHash($fields['token']));
 
-            return json_encode(['message' => 'Successfully logged out']);
-        } catch (\Exception $e) {
-            return json_encode(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
-        }
+        return json_encode(['message' => 'Successfully logged out']);
     }
 
     protected function getTokens(array $user, int $refreshExp): array
@@ -92,7 +94,7 @@ class Controller extends BaseController
             'name'     => $user['name'],
             'username' => $user['username'],
             'dt_add'   => $user['dt_add'],
-            'exp'      => time() + 20
+            'exp'      => time() + 43200
         ], $_ENV['JWT_SECRET_KEY'], 'HS256');
 
         $refreshToken = JWT::encode([

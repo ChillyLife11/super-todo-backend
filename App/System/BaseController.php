@@ -6,12 +6,14 @@ class BaseController
 {
     public BaseModel $model;
     public array $params;
+    public ?array $user = null;
 
-    public function __construct()
+    public function checkAuth()
     {
         try {
             Auth::authAccessToken();
         } catch (\Exception $e) {
+            http_response_code(400);
             throw new \Exception($e->getMessage());
         }
     }

@@ -55,10 +55,13 @@ class Model extends BaseModel
 
         $fields['password'] = password_hash($fields['password'], PASSWORD_BCRYPT);
 
-        $sql = $this->buildInsertSql($fields);
+        $columns = implode(', ', array_keys($fields));
+        $masks = ':' . implode(', :', array_keys($fields));
+
+        $sql = "INSERT INTO {$this->tableName} ($columns) VALUES ($masks)";
 
         $this->db->query($sql, $fields);
 
-        return $this->toBool($this->one((string)$this->db->lastInsertId()));
+        return $this->one((string)$this->db->lastInsertId());
     }
 }
