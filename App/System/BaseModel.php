@@ -33,7 +33,6 @@ class BaseModel
                 $condPairs[] .= $k . ' = :' . $k;
             }
             $condStr = implode(' AND ', $condPairs);
-
         }
 
         if ($this->auth::$userId !== null) {
@@ -65,9 +64,18 @@ class BaseModel
 
     public function one(string $id): array
     {
+        $params = [
+            'id' => $id,
+        ];
 
-        $sql = "SELECT * FROM {$this->tableName} WHERE {$this->primaryKey} = :id ORDER BY dt_add DESC";
-        $stmt = $this->db->query($sql, ['id' => $id]);
+        $sql = "SELECT * FROM {$this->tableName} WHERE {$this->primaryKey} = :id";
+
+        if ($this->auth::$userId !== null) {
+            $sql .= ' AND id_user=:id_user';
+            $params = $params + ['id_user' => $this->auth::$userId];
+        }
+
+        $stmt = $this->db->query($sql, $params);
 
         $one = $stmt->fetch();
 
@@ -93,6 +101,11 @@ class BaseModel
 
         $sql = "UPDATE {$this->tableName} SET $vals WHERE {$this->primaryKey} = :id";
 
+         if ($this->auth::$userId !== null) {
+            $sql .= ' AND id_user=:id_user';
+            $fields = $fields + ['id_user' => $this->auth::$userId];
+        }
+
         $this->db->query($sql, $fields + ['id' => $id]);
         return true;
     }
@@ -106,6 +119,12 @@ class BaseModel
         $columns = implode(', ', array_keys($fields));
         $masks = ':' . implode(', :', array_keys($fields));
 
+        if ($this->auth::$userId !== null) {
+            $columns .= ', id_user';
+            $masks .= ', :id_user';
+            $fields = $fields + ['id_user' => $this->auth::$userId];
+        }
+
         $sql = "INSERT INTO {$this->tableName} ($columns) VALUES ($masks)";
 
         $this->db->query($sql, $fields);
@@ -116,7 +135,17 @@ class BaseModel
     public function delete(string $id): bool
     {
         $sql = "DELETE FROM {$this->tableName} WHERE {$this->primaryKey} = :id";
-        $stmt = $this->db->query($sql, ['id' => $id]);
+
+        $params = [
+            'id' => $id,
+        ];
+
+        if ($this->auth::$userId !== null) {
+            $sql .= ' AND id_user = :id_user';
+            $params = $params + ['id_user' => $this->auth::$userId];
+        }
+
+        $stmt = $this->db->query($sql, $params);
 
         if ($stmt->rowCount() > 0) {
             return true;
