@@ -20,7 +20,7 @@ class BaseModel
     public function all(array $params): ?array
     {
         $sql = "SELECT * FROM {$this->tableName}";
-        
+
         $condPairs = [];
         $condStr = '';
         if (!empty($params)) {
@@ -45,6 +45,14 @@ class BaseModel
         }
 
         $sql .= " ORDER BY dt_add DESC";
+
+        foreach ($this->fields as $k => $v) {
+            if (array_key_exists($k, $params)) {
+                if (array_key_exists('is_bool', $v)) {
+                    $params[$k] = filter_var($params[$k], FILTER_VALIDATE_BOOLEAN);
+                }
+            }
+        }
 
         $stmt = $this->db->query($sql, $params);
         $data = $stmt->fetchAll();
