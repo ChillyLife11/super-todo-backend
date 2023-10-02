@@ -14,7 +14,7 @@ class Controller extends BaseController
 
     /** @var ModelRefreshToken */
     public BaseModel $modelRefreshToken;
-    
+
     public function __construct()
     {
         $this->model = new Model();
@@ -27,7 +27,7 @@ class Controller extends BaseController
 
         $user = $this->model->getByUsername($fields);
 
-        $refreshExp = time() + 30;
+        $refreshExp = time() + 43200;
 
         $tokens = $this->getTokens($user, $refreshExp);
 
@@ -98,7 +98,7 @@ class Controller extends BaseController
             'name'     => $user['name'],
             'username' => $user['username'],
             'dt_add'   => $user['dt_add'],
-            'exp'      => time() + 20
+            'exp'      => time() + 86400
         ], $_ENV['JWT_SECRET_KEY'], 'HS256');
 
         $refreshToken = JWT::encode([

@@ -12,6 +12,8 @@
     ],
     "require": {
         "vlucas/phpdotenv": "^5.5",
-        "fakerphp/faker": "^1.23"
+        "fakerphp/faker": "^1.23",
+        "cboden/ratchet": "^0.4.4",
+        "firebase/php-jwt": "^6.8"
     }
 }

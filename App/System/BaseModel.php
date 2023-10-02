@@ -137,7 +137,17 @@ class BaseModel
 
         $this->db->query($sql, $fields);
 
-        return $this->one((string)$this->db->lastInsertId());
+        $addedEl = $this->one((string)$this->db->lastInsertId());
+        
+        foreach ($this->fields as $k => $v) {
+            if (array_key_exists($k, $addedEl)) {
+                if (array_key_exists('is_bool', $v)) {
+                    $addedEl[$k] = filter_var($addedEl[$k], FILTER_VALIDATE_BOOLEAN);
+                }
+            }
+        }
+
+        return $addedEl;
     }
 
     public function delete(string $id): bool
