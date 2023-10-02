@@ -9,8 +9,12 @@ use Firebase\JWT\Key;
 
 class Controller extends BaseController
 {
+    /** @var Model */
     public BaseModel $model;
+
+    /** @var ModelRefreshToken */
     public BaseModel $modelRefreshToken;
+    
     public function __construct()
     {
         $this->model = new Model();
@@ -23,7 +27,7 @@ class Controller extends BaseController
 
         $user = $this->model->getByUsername($fields);
 
-        $refreshExp = time() + 432000;
+        $refreshExp = time() + 30;
 
         $tokens = $this->getTokens($user, $refreshExp);
 
@@ -94,7 +98,7 @@ class Controller extends BaseController
             'name'     => $user['name'],
             'username' => $user['username'],
             'dt_add'   => $user['dt_add'],
-            'exp'      => time() + 43200
+            'exp'      => time() + 20
         ], $_ENV['JWT_SECRET_KEY'], 'HS256');
 
         $refreshToken = JWT::encode([

@@ -3,7 +3,6 @@
 namespace App\Modules\User;
 
 use App\System\BaseModel;
-use Firebase\JWT\JWT;
 
 class Model extends BaseModel
 {
